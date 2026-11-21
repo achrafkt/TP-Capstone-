@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    JPA 持久化单元配置
+    - 事务类型：RESOURCE_LOCAL（Java SE / 纯 JEE 环境，自行管理事务）
+    - 数据库连接参数可在运行时覆盖（见 com.example.config.DatabaseConfig）
+-->
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd"
+             version="2.2">
+
+    <persistence-unit name="ReservationPU" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <class>com.example.model.Utilisateur</class>
+        <class>com.example.model.Salle</class>
+        <class>com.example.model.Equipement</class>
+        <class>com.example.model.Reservation</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <!-- 只缓存带 @Cacheable 的实体 -->
+        <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+
+        <properties>
+            <!-- ===== 数据库连接（默认 H2 文件数据库，可被覆盖） ===== -->
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:./data/reservation"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+
+            <!-- ===== 表结构由迁移脚本管理，Hibernate 只负责校验 ===== -->
+            <property name="hibernate.hbm2ddl.auto" value="validate"/>
+
+            <!-- ===== 二级缓存：JCache + Ehcache 3 ===== -->
+            <property name="hibernate.cache.use_second_level_cache" value="true"/>
+            <property name="hibernate.cache.region.factory_class" value="org.hibernate.cache.jcache.JCacheRegionFactory"/>
+            <property name="hibernate.javax.cache.provider" value="org.ehcache.jsr107.EhcacheCachingProvider"/>
+            <property name="hibernate.javax.cache.uri" value="ehcache.xml"/>
+            <property name="hibernate.javax.cache.missing_cache_strategy" value="create"/>
+            <!-- 查询缓存（需在查询上设置提示 org.hibernate.cacheable=true） -->
+            <property name="hibernate.cache.use_query_cache" value="true"/>
+
+            <!-- ===== 统计信息（性能报告使用） ===== -->
+            <property name="hibernate.generate_statistics" value="true"/>
+
+            <!-- ===== SQL 日志：用于确认实体来自缓存还是数据库 ===== -->
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.use_sql_comments" value="true"/>
+
+            <!-- ===== 性能优化 ===== -->
+            <property name="hibernate.jdbc.batch_size" value="20"/>
+            <property name="hibernate.order_inserts" value="true"/>
+            <property name="hibernate.order_updates" value="true"/>
+            <property name="hibernate.default_batch_fetch_size" value="16"/>
+        </properties>
+    </persistence-unit>
+</persistence>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Ehcache 3 配置：为每个 Hibernate 缓存区域设置容量与过期时间。
+    区域名称 = 实体的全限定类名（集合缓存 = 类名 + "." + 属性名）。
+-->
+<config xmlns="http://www.ehcache.org/v3"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
+
+    <!-- 实体缓存模板：堆内最多 1000 个条目，10 分钟未访问即过期 -->
+    <cache-template name="entite">
+        <expiry>
+            <tti unit="minutes">10</tti>
+        </expiry>
+        <heap unit="entries">1000</heap>
+    </cache-template>
+
+    <cache alias="com.example.model.Utilisateur" uses-template="entite"/>
+    <cache alias="com.example.model.Salle" uses-template="entite"/>
+    <cache alias="com.example.model.Salle.equipements" uses-template="entite"/>
+
+    <!-- 设备是只读参考数据：永不过期 -->
+    <cache alias="com.example.model.Equipement">
+        <expiry>
+            <none/>
+        </expiry>
+        <heap unit="entries">200</heap>
+    </cache>
+
+    <!-- 查询结果缓存：5 分钟后过期 -->
+    <cache alias="default-query-results-region">
+        <expiry>
+            <ttl unit="minutes">5</ttl>
+        </expiry>
+        <heap unit="entries">500</heap>
+    </cache>
+
+    <!-- 表更新时间戳区域：必须永不过期，否则查询缓存可能返回过期数据 -->
+    <cache alias="default-update-timestamps-region">
+        <expiry>
+            <none/>
+        </expiry>
+        <heap unit="entries">5000</heap>
+    </cache>
+</config>
